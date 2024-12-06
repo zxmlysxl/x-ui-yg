@@ -1103,10 +1103,6 @@ cat > /usr/local/x-ui/bin/xui_singbox.json <<EOF
                 "detour": "direct"
             },
             {
-                "address": "rcode://refused",
-                "tag": "block"
-            },
-            {
                 "tag": "dns_fakeip",
                 "address": "fakeip"
             }
@@ -1153,8 +1149,11 @@ cat > /usr/local/x-ui/bin/xui_singbox.json <<EOF
       "inbounds": [
     {
       "type": "tun",
-      "inet4_address": "172.19.0.1/30",
-      "inet6_address": "fd00::1/126",
+      "tag": "tun-in",
+      "address": [
+      "172.19.0.1/30",
+      "fd00::1/126"
+      ],
       "auto_route": true,
       "strict_route": true,
       "sniff": true,
@@ -1169,14 +1168,6 @@ cat > /usr/local/x-ui/bin/xui_singbox.json <<EOF
     {
       "tag": "direct",
       "type": "direct"
-    },
-    {
-      "tag": "block",
-      "type": "block"
-    },
-    {
-      "tag": "dns-out",
-      "type": "dns"
     },
     {
       "tag": "select",
@@ -1234,8 +1225,17 @@ cat > /usr/local/x-ui/bin/xui_singbox.json <<EOF
     "final": "select",
     "rules": [
       {
-        "outbound": "dns-out",
-        "protocol": "dns"
+      "inbound": "tun-in",
+      "action": "sniff"
+      },
+      {
+      "protocol": "dns",
+      "action": "hijack-dns"
+      },
+      {
+      "port": 443,
+      "network": "udp",
+      "action": "reject"
       },
       {
         "clash_mode": "Direct",
